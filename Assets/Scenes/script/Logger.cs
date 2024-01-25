@@ -1,6 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.IO.Ports;
+using System.Timers;
+using System.Text;
 
 namespace Components
 {
@@ -17,11 +21,16 @@ public class Logger : MonoBehaviour
     private string recoderName = testCoder.recoderName;
     public int trialNumber;
     
+    SerialPort Portled = new SerialPort("COM4", 9600);
+    byte[] buffer = new byte[64];
+    private static System.Timers.Timer aTimer;
+    
     void Start()
     {
         trialNumber = 0;
-        Timeout();
         GetGuid();
+        aTimer = new System.Timers.Timer();
+        Portled.Open();
         getter();
         Components.RecordCenter.Instance.Write(recoderName, ref _data2Save);
     }
@@ -91,12 +100,13 @@ public class Logger : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.A))
             {
                 correct = false;
-             
+                NoReward();
             }
 
             if (Input.GetKeyDown(KeyCode.L))
             {
                 correct = true;
+                GiveReward();
            
             }
         }
@@ -106,12 +116,14 @@ public class Logger : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.L))
             {
                 correct = false;
+                NoReward();
           
             }
 
             if (Input.GetKeyDown(KeyCode.A))
             {
                 correct = true;
+                GiveReward();
             }
         }
     }
@@ -120,5 +132,25 @@ public class Logger : MonoBehaviour
     {
         
     }
+    
+    
+    
+    private void GiveReward()
+    {
+        Debug.Log("hello");	
+        Portled.Write("l"); //one char for one light
+        byte[] buffer = new byte[5];
+        Portled.Read(buffer,0,5);
+        string read = System.Text.Encoding.UTF8.GetString(buffer);
+        Debug.Log(read);
+        Portled.Close(); //must be closed or it will not open in the next trial.
+    }
+
+    private void NoReward()
+    {
+        Portled.Close();
+    }
+    
+    
 }
 }

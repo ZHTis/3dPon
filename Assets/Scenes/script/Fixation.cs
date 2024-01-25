@@ -10,7 +10,7 @@ public class Fixation : MonoBehaviour
     
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.A) | Input.GetKeyDown(KeyCode.L))
         {
             LoadControl.Load(_scene);
         }
